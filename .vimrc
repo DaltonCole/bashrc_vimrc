@@ -120,16 +120,31 @@ Plugin 'luochen1990/rainbow'
 
 " Kite - NOTE: Type shift-K to view documentation under cursor
 "let g:lightline.component += %{kite#statusline()}
-let g:kite_tab_complete=1 " Tab complete
-set completeopt+=menuone   " show the popup menu even when there is only 1 match
+"let g:kite_tab_complete=1 " Tab complete
+"set completeopt+=menuone   " show the popup menu even when there is only 1 match
 "set completeopt+=noinsert  " don't insert any text until user chooses a match
-set completeopt-=longest   " don't insert the longest common text"
-set completeopt+=preview   " Show documentation
-autocmd CompleteDone * if !pumvisible() | pclose | endif " Preview window close automatically after insert
-set belloff+=ctrlg  " if vim beeps during completion
+"set completeopt-=longest   " don't insert the longest common text"
+"set completeopt+=preview   " Show documentation
+"autocmd CompleteDone * if !pumvisible() | pclose | endif " Preview window close automatically after insert
+"set belloff+=ctrlg  " if vim beeps during completion
 "let g:kite_previous_placeholder = '<S-TAB>'
 "let g:kite_next_placeholder = '<TAB>'
-let g:kite_auto_complete = 1
+"let g:kite_auto_complete = 1
+
+""" HTML  """
+" Emmet
+" * `,,` is the way to run command in insert-mode
+" * HTML Boilerplate: `html:5,,''`
+" * Create a tag: `div,,`, `p,,`, etc.
+" * Child tags: `div>p>a,,` Will exapand to <div><p><a...
+" * Use `.` for class and `#` for id: `div.container>p#foo>a,,`
+Plugin 'mattn/emmet-vim'
+let g:user_emmet_leader_key=','
+" Close tags via `>`
+"   Use `>>` to put close tag on new line
+Plugin 'alvan/vim-closetag'
+
+
 
 
 
