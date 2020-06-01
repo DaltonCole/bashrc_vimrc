@@ -127,6 +127,9 @@ if [ -x /usr/bin/mint-fortune ]; then
      /usr/bin/mint-fortune
 fi
 
+# Allow directory mispellings when cd-ing
+shopt -s cdspell
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/drc/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -141,5 +144,4 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
-conda activate tf
 

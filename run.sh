@@ -2,6 +2,7 @@
 
 ### BASH RC ###
 cp ./.bashrc ~/.bashrc
+source ~/.bashrc
 
 ### TMUX ###
 cp ./.tmux.conf ~/.tmux.conf
@@ -18,7 +19,12 @@ cp ./.vimrc ~/.vimrc
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim +PluginInstall +qal
 
-# YouCompleMe
-apt install build-essential cmake vim python3-dev # Install cmake, vim, python
-cd ~/.vim/bundle/YouCompleteMe
+# YouCompleteMe
+sudo apt install build-essential cmake vim python3-dev # Install cmake, vim, python
+cd ~/.vim/bundle/youcompleteme
 python3 install.py --all # Will probably fail with some languages
+
+
+### Other Software ###
+# Anaconda
+bash ./scripts/anaconda.sh
