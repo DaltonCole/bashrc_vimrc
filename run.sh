@@ -27,4 +27,6 @@ python3 install.py --all # Will probably fail with some languages
 
 ### Other Software ###
 # Anaconda
-bash ./scripts/anaconda.sh
+bash ./scripts/anaconda.shi
+# Tmux
+bash ./scripts/tmux.sh
