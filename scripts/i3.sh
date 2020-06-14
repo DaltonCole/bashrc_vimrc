@@ -6,12 +6,24 @@ echo "Install i3"
 sudo apt-get install i3
 # i3-status
 sudo apt-get install i3status
+# i3 lock screen
+sudo apt-get install i3lock
+# i3 status bar customization
+sudo apt-get install i3blocks
+#   Battery in status bar
+sudo apt-get install acpi
+#   CPU usage
+sudo apt install sysstat
 
 # Dmenu
 sudo apt-get install suckless-tools
 
 # Background
 sudo apt-get install feh
+
+# Change system theme
+sudo apt-get install lxappearance # Will need to manually change it via lxappearance
+
 
 ######### HELP #########
 # Fit screen to monitor:
