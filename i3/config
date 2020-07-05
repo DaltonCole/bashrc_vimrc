@@ -124,13 +124,10 @@ bindsym $mod+a focus parent
 
 ######## Workspace ##########
 # Workspace variables
-set $workspace1 "1: File Explorer "
-set $workspace2 "2: Firefox "
-set $workspace3 "3: Term "
 # switch to workspace
-bindsym $mod+1 workspace $workspace1
-bindsym $mod+2 workspace $workspace2
-bindsym $mod+3 workspace $workspace3
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
 bindsym $mod+4 workspace 4
 bindsym $mod+5 workspace 5
 bindsym $mod+6 workspace 6
@@ -140,9 +137,9 @@ bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace $workspace1
-bindsym $mod+Shift+2 move container to workspace $workspace2
-bindsym $mod+Shift+3 move container to workspace $workspace3
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
 bindsym $mod+Shift+4 move container to workspace 4
 bindsym $mod+Shift+5 move container to workspace 5
 bindsym $mod+Shift+6 move container to workspace 6
@@ -152,8 +149,8 @@ bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
 # Open applications
-assign [class="Nemo"] $workspace1 # File explorer 
-assign [class="Firefox"] $workspace2
+#assign [class="Nemo"] $workspace1 # File explorer 
+#assign [class="Firefox"] $workspace2
 #assign [class="Gnome-terminal"] $workspace3
 
 #############################
@@ -196,6 +193,8 @@ bindsym $mod+r mode "resize"
 bar {
         status_command i3blocks -c ~/.config/i3/i3blocks.conf
 }
+### Polybar ###
+#exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
 # Lock computer with mode+shift+x
 bindsys $mod+shift+x exec i3lock --color "$bg-color"

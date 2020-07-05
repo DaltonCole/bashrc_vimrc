@@ -81,7 +81,7 @@ let g:ycm_autoclose_preview_window_after_completion = 1
 "let g:ycm_filetype_blacklist = {'python': 1}
 "let g:yvm_semantic_triggers = {'python': []}
 
-" Paste mode so no stupid auto formating when pasting
+" Paste mode so no stupid auto formatting when pasting
 set pastetoggle=<F2>
 
 " Allow cursor to wrap to next and previous line
@@ -137,6 +137,7 @@ Plugin 'luochen1990/rainbow'
 " * HTML Boilerplate: `html:5,,''`
 " * Create a tag: `div,,`, `p,,`, etc.
 " * Child tags: `div>p>a,,` Will exapand to <div><p><a...
+"   * To make many items in an item: `ul>li*5,,`
 " * Use `.` for class and `#` for id: `div.container>p#foo>a,,`
 Plugin 'mattn/emmet-vim'
 let g:user_emmet_leader_key=','
@@ -144,7 +145,32 @@ let g:user_emmet_leader_key=','
 "   Use `>>` to put close tag on new line
 Plugin 'alvan/vim-closetag'
 
+" Python-Mode
+" * Run Code: <leader>r
+" * Add/Remove Break Point: <leader>b
+" * Search Documentation: <leader>K
+" * HELP: `:help pymode`
+Plugin 'klen/python-mode'
+let g:pymode_options_max_line_length = 120
+autocmd FileType python setlocal nonumber
+let g:pymode_lint_ignore = "E501,W"
+let g:pymode_lint_options_pep8 = {'max_line_length': g:pymode_options_max_line_length}
+let g:pymode_options_colorcolumn = 0
 
+" Grammar Check
+" * To Run: `:GrammarousCheck`
+" * Local mappings from the information window:
+"   * Quit window: `q`
+"   * Move to location of the error: `<Ctrl>`
+"   * Fix the error automatically: `f`
+"   * Mote to next/previous: `n`/`p`
+Plugin 'rhysd/vim-grammarous'
 
+" Pretty break indention
+set breakindent
 
+" Javascript
+Plugin 'pangloss/vim-javascript'
+let g:javascript_plugin_jsdoc = 1 " Syntax highlighting
+let g:javascript_plugin_flow = 1 " Flow syntax highlighting
 
