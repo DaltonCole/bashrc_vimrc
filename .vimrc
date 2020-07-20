@@ -102,7 +102,7 @@ set spelllang=en
 set spell
 
 " Python Debug
-Plugin 'joonty/vdebug'
+" Plugin 'joonty/vdebug'
 
 " Get rid of W12 warning
 set autoread
@@ -153,9 +153,11 @@ Plugin 'alvan/vim-closetag'
 Plugin 'klen/python-mode'
 let g:pymode_options_max_line_length = 120
 autocmd FileType python setlocal nonumber
-let g:pymode_lint_ignore = "E501,W"
-let g:pymode_lint_options_pep8 = {'max_line_length': g:pymode_options_max_line_length}
+let g:pymode_lint_ignore = "E501"
+let g:pep8_ignore="E501"
+let g:pymode_lint_options_pep8 = {'max_line_length': 120}
 let g:pymode_options_colorcolumn = 0
+let g:syntastic_python_pylint_post_args="--max-line-length=120"
 
 " Grammar Check
 " * To Run: `:GrammarousCheck`
