@@ -64,7 +64,7 @@ endtry
 let g:go_version_warning = 0
 """"""""""""""""""""""
 " Auto complete
-Plugin 'valloric/youcompleteme'
+Plugin 'Valloric/YouCompleteMe', {'commit': 'd98f896'}
 let g:ycm_enable_diagnostic_signs = 0
 let g:ycm_enable_diagnostic_highlighting = 0
 let g:ycm_show_diagnostics_ui = 0
