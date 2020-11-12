@@ -176,3 +176,5 @@ Plugin 'pangloss/vim-javascript'
 let g:javascript_plugin_jsdoc = 1 " Syntax highlighting
 let g:javascript_plugin_flow = 1 " Flow syntax highlighting
 
+" Disable folding
+set nofoldenable
