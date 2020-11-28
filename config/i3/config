@@ -1,4 +1,3 @@
-
 ##### Key bindings #####
 # Close current window:     mod + shift + q
 # Lock screen:              mod + shift + x
@@ -38,7 +37,9 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
+# $mod = Windows key
 set $mod Mod4
+# $alt = Alt key
 set $alt Mod1
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -66,11 +67,27 @@ bindsym $mod+Return exec i3-sensible-terminal
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec dmenu_run
-# There also is the (new) i3-dmenu-desktop which only displays applications
-# shipping a .desktop file. It is a wrapper around dmenu, so you need that
-# installed.
-# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+# bindsym $mod+d exec dmenu_run
+# Dmenu, but only show applications with .desktop icons
+# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu='rofi -dmenu -i'
+
+# Rofi - Dmenu replacement
+#   modi
+#       window: Choose from opened windows
+#       drun: Choose from applications that have a .desktop icon
+#       run: Show all executables in $PATH
+#       ssh: Shows ssh connections configured in ~/.ssh/config
+#   show
+#       drun: Default to drun
+#   sidebar-mode: Shows modi options at the bottom
+#   color-window
+#       'background, border, separator'
+#   color-normal
+#   color-active
+#   color-urgent
+#       'background, text color, background color alternating row, foreground color selected row, background color selected row'
+bindsym $mod+d exec "rofi -modi window,drun,run,ssh -show drun -sidebar-mode -color-window '#000000, #000000, #000000' -color-normal '#000000, #df00fe, #000000, #df00fe, #000000' -color-active '#000000, #df00fe, #000000, #df00fe, #000000' -color-urgent '#000000, #df00fe, #000000, #df00fe, #000000'"
+
 
 # change focus
 bindsym $mod+j focus left
@@ -122,40 +139,67 @@ bindsym $mod+a focus parent
 # focus the child container
 #bindsym $mod+d focus child
 
+######## Monitors ##########
+# Set monitor placement
+exec_always ~/.config/i3/screen.sh
+# Background - Linux Mint
+exec_always feh --bg-scale /usr/share/backgrounds/linuxmint-ulyana/ttucker_taipei.jpg
+# Name monitors
+set $monitor1 eDP-1
+set $monitor2 DP-1-3
+set $monitor3 HDMI-1
+
 ######## Workspace ##########
 # Workspace variables
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9 - Spotify"
+set $ws10 "10 - Discord"
 # switch to workspace
-bindsym $mod+1 workspace 1
-bindsym $mod+2 workspace 2
-bindsym $mod+3 workspace 3
-bindsym $mod+4 workspace 4
-bindsym $mod+5 workspace 5
-bindsym $mod+6 workspace 6
-bindsym $mod+7 workspace 7
-bindsym $mod+8 workspace 8
-bindsym $mod+9 workspace 9
-bindsym $mod+0 workspace 10
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws10
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 10
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws10
+
+# Bound workspace to specific monitor
+workspace $ws9 output $monitor1
+workspace $ws10 output $monitor1
 
 # Open applications
-#assign [class="Nemo"] $workspace1 # File explorer 
-#assign [class="Firefox"] $workspace2
-#assign [class="Gnome-terminal"] $workspace3
+assign [class="spotify"] $ws9
+### SPOTIFY doesn't work for some reason????
+assign [class="discord"] $ws10
 
+# Auto start applications
+exec --no-startup-id i3-msg 'workspace $ws9; exec /usr/bin/spotify'
+exec --no-startup-id i3-msg 'workspace $ws10; exec /snap/bin/discord'
 #############################
 
-# reload the configuration file
+# reload this configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
@@ -188,21 +232,33 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
+########## Status Bar ##########
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
         status_command i3blocks -c ~/.config/i3/i3blocks.conf
 }
+bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
+bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 ### Polybar ###
 #exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+###############################
 
 # Lock computer with mode+shift+x
-bindsys $mod+shift+x exec i3lock --color "$bg-color"
-
-
-# Background - Linux Mint
-exec_always feh --bg-scale /usr/share/backgrounds/linuxmint-tara/jplenio_lake.jpg
+bindsym $mod+shift+x exec i3lock --color 221c35
 
 # Remove boarder saying where new windows will appear when only one window exists
 hide_edge_borders smart
 
+########## Sound - Audio ##########
+# Volume Up - Fn+Up
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && pkill -RTMIN+10 i3blocks
+# Volume Down - Fn+Down
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% && pkill -RTMIN+10 i3blocks
+# No idea the F key combination
+#bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+#bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
+# xbacklight does not work for my laptop
+#bindsym XF86MonBrightnessUp exec xbacklight -inc 7
+#bindsym XF86MonBrightnessDown exec xbacklight -dec 7
+###################################

@@ -17,6 +17,8 @@ sudo apt install sysstat
 
 # Dmenu
 sudo apt-get install suckless-tools
+# Rofi (better? dmenu alternative)
+sudo apt-get install rofi
 
 # Background
 sudo apt-get install feh
@@ -34,5 +36,3 @@ sudo apt-get install lxappearance # Will need to manually change it via lxappear
 #   1. Open desired application and terminal side-by-side
 #   2. Run `xprop` in terminal and click on desired application
 #   3. Use the second value from `WM_CLASS` in i3 config file
-
-
