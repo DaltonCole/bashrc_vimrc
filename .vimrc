@@ -151,13 +151,21 @@ Plugin 'alvan/vim-closetag'
 " * Search Documentation: <leader>K
 " * HELP: `:help pymode`
 Plugin 'klen/python-mode'
-let g:pymode_options_max_line_length = 120
+let g:pymode_lint = 1
+let g:pymode_lint_on_write = 1
 autocmd FileType python setlocal nonumber
-let g:pymode_lint_ignore = "E501"
-let g:pep8_ignore="E501"
-let g:pymode_lint_options_pep8 = {'max_line_length': 120}
-let g:pymode_options_colorcolumn = 0
-let g:syntastic_python_pylint_post_args="--max-line-length=120"
+let g:pymode_lint_ignore = ["E501", "E402"]  " Ignore: Line length limit, module import not at top of file
+let g:pymode_lint_cwindow = 0  " Do not open preview window for PEP errors
+let g:pymode_options_colorcolumn = 0  " No colored column at max line length
+let g:pymode_indent = 1  " PEP8-Compatible python indent
+let g:pymode_doc = 1  " Show pydoc documentation
+"let g:pymode_options_max_line_length = 120
+"let g:pymode_lint_ignore = "E501"
+"let g:pep8_ignore="E501"
+"let g:pymode_lint_options_pep8 = {'max_line_length': 120}
+"let g:syntastic_python_pylint_post_args="--max-line-length=120"
+
+let g:pymode_trim_whitespaces = 1  "Trim unused white space at end of lines
 
 " Grammar Check
 " * To Run: `:GrammarousCheck`
@@ -178,3 +186,6 @@ let g:javascript_plugin_flow = 1 " Flow syntax highlighting
 
 " Disable folding
 set nofoldenable
+
+" Linter
+Plugin 'dense-analysis/ale'
