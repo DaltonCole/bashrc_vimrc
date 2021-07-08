@@ -145,4 +145,29 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-#conda activate tf
+# Lewis Cluster
+alias lewis="ssh drcgy5@lewis.rnet.missouri.edu"
+
+# Website
+export DEBUG=True
+
+# Audio
+alias sound="alsamixer"
+alias audio="alsamixer"
+
+# XAMPP Server for Databases
+alias xampp="sudo /opt/lampp/lampp start"
+
+# Map "open" to "xdg-open"
+alias open="xdg-open"
+
+# Restarts audio for when there is a "Audio Renderer Error - Please Restart Your Computer" error on YouTube
+alias audio-restart="pulseaudio -k && sudo alsa force-reload"
+
+# RuneScape
+alias runelite="java -jar /usr/local/bin/RuneLite.jar"
+
+# Copy to clipboard using xclip
+alias xclip="xclip -selection c"
+
+. "$HOME/.cargo/env"
