@@ -130,6 +130,9 @@ fi
 # Allow directory mispellings when cd-ing
 shopt -s cdspell
 
+# Magic space - Use !<something><space> to auto-expand last command of something. Works with !!
+bind Space:magic-space
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/drc/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
