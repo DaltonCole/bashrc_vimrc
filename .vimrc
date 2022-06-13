@@ -189,3 +189,6 @@ set nofoldenable
 
 " Linter
 Plugin 'dense-analysis/ale'
+
+" Rust
+Plugin 'neoclide/coc.nvim', {'branch': 'release'}
