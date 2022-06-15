@@ -2,9 +2,6 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-# Pi Cluster
-alias cluster='ssh drc14@67.43.246.19'
-
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
@@ -148,29 +145,37 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-# Lewis Cluster
-alias lewis="ssh drcgy5@lewis.rnet.missouri.edu"
-
-# Website
-export DEBUG=True
-
 # Audio
 alias sound="alsamixer"
 alias audio="alsamixer"
 
-# XAMPP Server for Databases
-alias xampp="sudo /opt/lampp/lampp start"
-
 # Map "open" to "xdg-open"
 alias open="xdg-open"
-
-# Restarts audio for when there is a "Audio Renderer Error - Please Restart Your Computer" error on YouTube
-alias audio-restart="pulseaudio -k && sudo alsa force-reload"
-
-# RuneScape
-alias runelite="java -jar /usr/local/bin/RuneLite.jar"
 
 # Copy to clipboard using xclip
 alias xclip="xclip -selection c"
 
+# Rust
 . "$HOME/.cargo/env"
+
+# Magic space - Use !<something><space> to auto-expand last command of something.
+bind Space:magic-space
+
+##### Me Specific #####
+# Website
+export DEBUG=True
+
+# Pi Cluster
+alias cluster='ssh drc14@67.43.246.19'
+
+##### LOCAL #####
+# XAMPP Server for Databases
+alias xampp="sudo /opt/lampp/lampp start"
+
+# RuneScape
+alias runelite="java -jar /usr/local/bin/RuneLite.jar"
+# Restarts audio for when there is a "Audio Renderer Error - Please Restart Your Computer" error on YouTube
+alias audio-restart="pulseaudio -k && sudo alsa force-reload"
+alias fix-audio="audio-restart"
+# Two Monitors
+alias screen="/home/drc/bashrc_vimrc/config/i3/screen.sh"

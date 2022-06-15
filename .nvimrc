@@ -1,5 +1,7 @@
 "### Configurations ###
+" Paste
 set pastetoggle=<F2>
+map <leader>pp :setlocal paste!<cr>
 " Allow cursor to wrap to next and previous line
 set whichwrap+=<,>,h,l,[,]
 " Set cursor to the middle of the screen
@@ -27,8 +29,17 @@ map <leader>ss z=
 
 " Disable folding
 set nofoldenable
+
+""" History  """
 " How many lines of history vim has to remember
 set history=1000
+" Persistent undo on
+try
+    set undodir=~/.config/nvim/undodir
+    set undofile
+catch
+endtry
+
 " Enable filetype plugins
 filetype plugin on
 filetype indent on
@@ -36,9 +47,6 @@ filetype indent on
 " Auto read file changes (when changed from outside)
 set autoread
 au FocusGained,BufEnter * checktime
-
-" Use :W to sudo save file
-command! W executes 'w !sudo tee % > /dev/null' <bar> edit!
 
 " Always center cursor vertically
 set scrolloff=999
@@ -121,7 +129,7 @@ map <C-l> <C-W>l
 " Return to last edit position when opening files
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 " 0 goes to first non-blank character
-" map 0 ^
+map 0 ^
 
 
 """ Leader Stuff """
@@ -142,6 +150,9 @@ set laststatus=2
 set signcolumn=number " Vim can merge signcolumn and number column into one
 
 """ Save """
+" Use :W to sudo save file
+command! W executes 'w !sudo tee % > /dev/null' <bar> edit!
+
 " Delete trailing white space on save
 fun! CleanExtraSpaces()
     let save_cursor = getpos(".")
@@ -155,9 +166,50 @@ if has("autocmd")
     autocmd BufWritePre *.txt,*.js,*.py,*.wiki,*.sh,*.coffee :call CleanExtraSpaces()
 endif
 
+""" Edit """
+" Move a line up or down using Alt + shift + JK
+nmap <M-J> mz:m+<cr>`z
+nmap <M-K> mz:m-2<cr>`z
+
+""" Visual Mode """
+" Select, then <leader>r to search and replace
+vnoremap <silent> <leader>r :call VisualSelection('replace', '')<CR>
+" Search for current word
+vnoremap <silent> * :<C-u>call VisualSelection('', '')<CR>/<C-R>=@/<CR><CR>
+
+""" Cope """
+"map <leader>cc :botright cope<cr>
+"map <leader>co ggVGy:tabnew<cr>:set syntax=qf<cr>pgg
+"map <leader>n :cn<cr>
+"map <leader>p :cp<cr>
+
+
+""" Parenthesis/Brackets """
+vnoremap $1 <esc>`>a)<esc>`<i(<esc>
+vnoremap $2 <esc>`>a]<esc>`<i[<esc>
+vnoremap $3 <esc>`>a}<esc>`<i{<esc>
+vnoremap $$ <esc>`>a"<esc>`<i"<esc>
+vnoremap $q <esc>`>a'<esc>`<i'<esc> 
+vnoremap $e <esc>`>a`<esc>`<i`<esc>
+" Auto complete (, ", ', [, {
+inoremap $1 ()<esc>i
+inoremap $2 []<esc>i
+inoremap $3 {}<esc>i
+inoremap $4 {<esc>o}<esc>O
+inoremap $q ''<esc>i
+inoremap $e ""<esc>i
+inoremap { {}<Esc>ha
+inoremap ( ()<Esc>ha
+inoremap [ []<Esc>ha
+inoremap " ""<Esc>ha
+inoremap ' ''<Esc>ha
+inoremap ` ``<Esc>ha
+
 """ Other """
 set updatetime=300 " Update swap file after 300 ms of idle time
 set shortmess+=c  " Ignore some "Have to hit enter" options (TODO: Further explore)
+" Make sure that enter is never overriden in the quickfix window
+autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
 
 
 
@@ -417,11 +469,46 @@ let g:airline#extensions#ale#enabled = 1  " Move errors to status bar
 "Plug 'antoinemadec/FixCursorHold.nvim'
 "Plug 'nvim-neotest/neotest'
 
+" Surround (TODO)
+"Plug 'tpope/vim-surround'
 
+" Parenthesis
+Plug 'chun-yang/auto-pairs'
 
+" MRU Plugin - Most Recently Used files
+" <leader>f to open recently used files search. 
+"   Enter to open or "O" to open vertically split
+Plug 'yegappan/mru'
+let MRU_File = '~/.config/nvim/other/vim_mru_files'
+let MRU_Max_Entries = 400
+map <leader>f :MRU<CR>
+
+" YankStack
+" Use Ctrl+p and Ctrl+n to cycle through paste options
+Plug 'maxbrunsfeld/vim-yankstack'
+nmap <C-p> <Plug>yankstack_substitute_older_paste
+nmap <C-n> <Plug>yankstack_substitute_newer_paste
 
 " Initialize plugin system
 call plug#end()
+
+"### Functions ###
+function! VisualSelection(direction, extra_filter) range
+    let l:saved_reg = @"
+    execute "normal! vgvy"
+
+    let l:pattern = escape(@", "\\/.*'$^~[]")
+    let l:pattern = substitute(l:pattern, "\n$", "", "")
+
+    if a:direction == 'gv'
+        call CmdLine("Ack '" . l:pattern . "' " )
+    elseif a:direction == 'replace'
+        call CmdLine("%s" . '/'. l:pattern . '/')
+    endif
+
+    let @/ = l:pattern
+    let @" = l:saved_reg
+endfunction
 
 " Automatically install plugins
 autocmd VimEnter *
