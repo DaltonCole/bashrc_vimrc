@@ -223,8 +223,6 @@ call plug#begin('~/.nvim/plugged')
 "   - e.g. `call plug#begin('~/.vim/plugged')`
 "   - Avoid using standard Vim directory names like 'plugin'
 
-" Nerd tree - Show directories
-Plug 'scrooloose/nerdtree'
 
 " YouCompleteMe - Autocompletion
 "Plug 'valloric/youcompleteme'
@@ -301,7 +299,17 @@ let g:javascript_plugin_flow = 1 " Flow syntax highlighting
 
 " Linter
 Plug 'dense-analysis/ale'
-let g:ale_linters = {'rust': ['analyzer']} " Rust support
+let g:ale_linters = {
+\    'rust': ['analyzer'],
+\    'javascript': ['eslint'],
+\    'python': ['flake8'],
+\    'go': ['go', 'golint', 'errcheck']
+\}
+" Go to next error with <leader>a
+nmap <silent> <leader>a <Plug>(ale_next_wrap)
+" Run ale when we've been in normal mode for 5 seconds
+let g:ale_lint_on_text_changed = "normal"
+let g:ale_lint_delay = 5
 
 """ Coc.nvim (Auto Complete) """
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -314,17 +322,22 @@ inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ CheckBackspace() ? "\<TAB>" :
       \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+inoremap <silent><expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
+" Don't use arrow keys to select autocomplete items
+inoremap <expr> <Up> pumvisible() ? "\<C-y>\<Up>" : "\<Up>"
+inoremap <expr> <Down> pumvisible() ? "\<C-y>\<Down>" : "\<Down>"
+
 " Make <CR> (i.e. Enter) auto-select the first completion item and notify coc.nvim to
 " format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+"inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+"                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+"
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -419,21 +432,21 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <leader>ca  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
-nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <leader>ce  :<C-u>CocList extensions<cr>
 " Show commands.
-nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <leader>cc  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <leader>co  :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <leader>cs  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <leader>cj  :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <leader>ck  :<C-u>CocPrev<CR>
 " Resume latest coc list.
-nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+nnoremap <silent><nowait> <leader>cp  :<C-u>CocListResume<CR>
 
 
 Plug 'autozimu/LanguageClient-neovim', {
@@ -470,7 +483,7 @@ let g:airline#extensions#ale#enabled = 1  " Move errors to status bar
 "Plug 'nvim-neotest/neotest'
 
 " Surround (TODO)
-"Plug 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 
 " Parenthesis
 Plug 'chun-yang/auto-pairs'
@@ -488,6 +501,73 @@ map <leader>f :MRU<CR>
 Plug 'maxbrunsfeld/vim-yankstack'
 nmap <C-p> <Plug>yankstack_substitute_older_paste
 nmap <C-n> <Plug>yankstack_substitute_newer_paste
+
+" BufExplorer - Find files in buffer
+Plug 'jlanzarotta/bufexplorer'
+let g:bufExplorerDefaultHelp=0
+let g:bufExplorerShowRelativePath=1
+let g:bufExplorerFindActive=1
+let g:bufExplorerSortBy='name'
+map <leader>o :BufExplorer<cr>
+
+" CTRL-P - Open files in buffer
+Plug 'ctrlpvim/ctrlp.vim'
+let g:ctrlp_working_path_mode = 0
+" Quickly find and open a file in the current working directory
+let g:ctrlp_map = '<C-f>'
+map <leader>j :CtrlP<cr>
+let g:ctrlp_max_height = 20
+let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
+
+" snipMate (TODO, use for html tags)
+"Plug 'msanders/snipmate.vim'
+
+" Nerd tree - Show directories
+Plug 'preservim/nerdtree'
+let g:NERDTreeWinPos = "right"
+let NERDTreeShowHidden=0
+let NERDTreeIgnore = ['\.pyc$', '__pycache__']
+let g:NERDTreeWinSize=35
+map <leader>nn :NERDTreeToggle<cr>
+map <leader>nb :NERDTreeFromBookmark<Space>
+map <leader>nf :NERDTreeFind<cr>
+
+" Vim-Multi-Cursors
+"Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+
+" Lightline - Status line
+Plug 'itchyny/lightline.vim'
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ 'active': {
+      \   'left': [ ['mode', 'paste'],
+      \             ['readonly', 'filename', 'modified'] ],
+      \   'right': [ [ 'lineinfo' ], ['percent'], ['fugitive'] ]
+      \ },
+      \ 'component': {
+      \   'readonly': '%{&filetype=="help"?"":&readonly?"🔒":""}',
+      \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
+      \   'fugitive': '%{exists("*FugitiveHead")?FugitiveHead():""}'
+      \ },
+      \ 'component_visible_condition': {
+      \   'readonly': '(&filetype!="help"&& &readonly)',
+      \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
+      \   'fugitive': '(exists("*FugitiveHead") && ""!=FugitiveHead())'
+      \ },
+      \ 'separator': { 'left': ' ', 'right': ' ' },
+      \ 'subseparator': { 'left': ' ', 'right': ' ' }
+      \ }
+
+" Show git changes
+Plug 'airblade/vim-gitgutter'
+let g:gitgutter_enabled=0
+" Use <leader>g to show git changes
+nnoremap <silent> <leader>g :GitGutterToggle<cr>
+
+" Fugitive - Git (Remove?)
+Plug 'tpope/vim-fugitive'
+nnoremap <leader>v :.GBrowse!<CR>
+xnoremap <leader>v :'<'>GBrowse!<CR>
 
 " Initialize plugin system
 call plug#end()

@@ -161,6 +161,10 @@ alias xclip="xclip -selection c"
 # Magic space - Use !<something><space> to auto-expand last command of something.
 bind Space:magic-space
 
+# fzf fuzzy search with ctrl-r
+source /usr/share/doc/fzf/examples/completion.bash
+source /usr/share/doc/fzf/examples/key-bindings.bash
+
 ##### Me Specific #####
 # Website
 export DEBUG=True
