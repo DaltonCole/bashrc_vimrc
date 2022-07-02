@@ -165,6 +165,12 @@ bind Space:magic-space
 source /usr/share/doc/fzf/examples/completion.bash
 source /usr/share/doc/fzf/examples/key-bindings.bash
 
+# Neovim
+alias n="nvim"
+
+# Colored Diff
+alias diff="diff --color"
+
 ##### Me Specific #####
 # Website
 export DEBUG=True

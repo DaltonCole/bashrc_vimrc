@@ -10,7 +10,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # Git status bar
 sudo apt install golang-go
-go get -u github.com/arl/gitmux
+go install github.com/arl/gitmux@latest
 
 
 ########## Help ##########

@@ -472,8 +472,8 @@ set background=dark
 colorscheme peaksea
 
 " Status bar
-Plug 'vim-airline/vim-airline'
-let g:airline#extensions#ale#enabled = 1  " Move errors to status bar
+"Plug 'vim-airline/vim-airline'
+"let g:airline#extensions#ale#enabled = 1  " Move errors to status bar
 
 
 " Testing (TODO)
@@ -537,17 +537,26 @@ map <leader>nf :NERDTreeFind<cr>
 
 " Lightline - Status line
 Plug 'itchyny/lightline.vim'
+
+function! CocCurrentFunction()
+    return get(b:, 'coc_current_function', '')
+endfunction
+
 let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
       \   'left': [ ['mode', 'paste'],
-      \             ['readonly', 'filename', 'modified'] ],
+      \             ['readonly', 'filename', 'modified', 'cocstatus', 'currentfunction'] ],
       \   'right': [ [ 'lineinfo' ], ['percent'], ['fugitive'] ]
       \ },
       \ 'component': {
       \   'readonly': '%{&filetype=="help"?"":&readonly?"🔒":""}',
       \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
       \   'fugitive': '%{exists("*FugitiveHead")?FugitiveHead():""}'
+      \ },
+      \ 'component_function': {
+      \   'cocstatus': 'coc#status',
+      \   'currentfunction': 'CocCurrentFunction'
       \ },
       \ 'component_visible_condition': {
       \   'readonly': '(&filetype!="help"&& &readonly)',
@@ -557,6 +566,8 @@ let g:lightline = {
       \ 'separator': { 'left': ' ', 'right': ' ' },
       \ 'subseparator': { 'left': ' ', 'right': ' ' }
       \ }
+" Use autocmd to force lightline update.
+autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
 " Show git changes
 Plug 'airblade/vim-gitgutter'
