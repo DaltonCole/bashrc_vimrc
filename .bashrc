@@ -167,6 +167,9 @@ source /usr/share/doc/fzf/examples/key-bindings.bash
 
 # Neovim
 alias n="nvim"
+alias vim="nvim"
+alias vi="nvim"
+alias oldvim="\vim"
 
 # Colored Diff
 alias diff="diff --color"

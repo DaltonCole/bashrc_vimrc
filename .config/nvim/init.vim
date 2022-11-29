@@ -121,6 +121,10 @@ set si    " Smart indent - Be smart about auto intenting
 set wrap  " Wrap lines that go off screen
 
 """ Moving Around """
+" Split using ctrl+shift+v or ctrl+shift+s
+nnoremap ,v <C-w>v
+nnoremap ,s <C-w>s
+
 " Move between windows using Ctrl+jkhl
 map <C-j> <C-W>j
 map <C-k> <C-W>k
@@ -244,6 +248,7 @@ call plug#begin('~/.nvim/plugged')
 
 " Colorful Parenthesis
 Plug 'luochen1990/rainbow'
+let g:rainbow_active = 1
 
 """ HTML """
 " Emmet
@@ -464,6 +469,10 @@ let g:LanguageClient_serverCommands = {
 \ }
 Plug 'neovim/nvim-lspconfig'
 
+
+Plug 'rust-lang/rust.vim'
+let g:rustfmt_autosave = 1
+
 """"""
 
 " Colorscheme
@@ -582,6 +591,11 @@ xnoremap <leader>v :'<'>GBrowse!<CR>
 
 " Initialize plugin system
 call plug#end()
+
+""" Moving Around """
+" Split using ctrl+shift+v or ctrl+shift+s
+nnoremap ,v <C-w>v
+nnoremap ,s <C-w>s
 
 "### Functions ###
 function! VisualSelection(direction, extra_filter) range
