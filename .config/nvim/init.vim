@@ -597,6 +597,9 @@ call plug#end()
 nnoremap ,v <C-w>v
 nnoremap ,s <C-w>s
 
+" Disable Mouse
+set mouse=
+
 "### Functions ###
 function! VisualSelection(direction, extra_filter) range
     let l:saved_reg = @"
