@@ -16,6 +16,13 @@ set expandtab
 """ Spellcheck """
 set spelllang=en
 set spell
+" Specify where to add new words
+try
+    set spellfile=~/.config/nvim/en.utf-8.add
+catch
+endtry
+" Limit to only 10 suggestions
+set spellsuggest+=10
 " Toggle / Untoggle spell checking using ,ss
 map <leader>st :setlocal spell!<cr>
 " Next spelling error
@@ -78,7 +85,13 @@ set magic      " Use regular expressions in search
 " Space to search
 map <space> /
 " Use Ctrl-Space to backwards search
-map <C-space> ? 
+map <C-space> ?
+
+""" Window Settings """
+" Always split below
+set splitbelow
+" Enable mouse drag and selection on new windows
+set mouse=v
 
 " Don't redraw while executing macros
 set lazyredraw
@@ -121,10 +134,6 @@ set si    " Smart indent - Be smart about auto intenting
 set wrap  " Wrap lines that go off screen
 
 """ Moving Around """
-" Split using ctrl+shift+v or ctrl+shift+s
-nnoremap ,v <C-w>v
-nnoremap ,s <C-w>s
-
 " Move between windows using Ctrl+jkhl
 map <C-j> <C-W>j
 map <C-k> <C-W>k
@@ -193,7 +202,7 @@ vnoremap $1 <esc>`>a)<esc>`<i(<esc>
 vnoremap $2 <esc>`>a]<esc>`<i[<esc>
 vnoremap $3 <esc>`>a}<esc>`<i{<esc>
 vnoremap $$ <esc>`>a"<esc>`<i"<esc>
-vnoremap $q <esc>`>a'<esc>`<i'<esc> 
+vnoremap $q <esc>`>a'<esc>`<i'<esc>
 vnoremap $e <esc>`>a`<esc>`<i`<esc>
 " Auto complete (, ", ', [, {
 inoremap $1 ()<esc>i
@@ -208,6 +217,8 @@ inoremap [ []<Esc>ha
 inoremap " ""<Esc>ha
 inoremap ' ''<Esc>ha
 inoremap ` ``<Esc>ha
+" Use 'P' to add Parenthesis around highlighted text
+vnoremap <leader>s xi()<Esc>P
 
 """ Other """
 set updatetime=300 " Update swap file after 300 ms of idle time
@@ -245,6 +256,10 @@ call plug#begin('~/.nvim/plugged')
 "" Disable Youcompleteme with python
 ""let g:ycm_filetype_blacklist = {'python': 1}
 ""let g:yvm_semantic_triggers = {'python': []}
+
+" Language packs
+Plug 'sheerun/vim-polyglot'
+set nocompatible
 
 " Colorful Parenthesis
 Plug 'luochen1990/rainbow'
@@ -310,6 +325,7 @@ let g:ale_linters = {
 \    'python': ['flake8'],
 \    'go': ['go', 'golint', 'errcheck']
 \}
+
 " Go to next error with <leader>a
 nmap <silent> <leader>a <Plug>(ale_next_wrap)
 " Run ale when we've been in normal mode for 5 seconds
@@ -355,13 +371,13 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call ShowDocumentation()<CR>
+" Use H to show documentation in preview window.
+nnoremap <silent> H :call ShowDocumentation()<CR>
 function! ShowDocumentation()
   if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
   else
-    call feedkeys('K', 'in')
+    call feedkeys('H', 'in')
   endif
 endfunction
 
@@ -407,19 +423,19 @@ xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
 " Remap <C-j> and <C-k> for scroll float windows/popups.
-if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-j> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-k> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-j> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-k> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-j> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-k> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
+"if has('nvim-0.4.0') || has('patch-8.2.0750')
+"  nnoremap <silent><nowait><expr> <C-j> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+"  nnoremap <silent><nowait><expr> <C-k> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+"  inoremap <silent><nowait><expr> <C-j> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+"  inoremap <silent><nowait><expr> <C-k> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+"  vnoremap <silent><nowait><expr> <C-j> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+"  vnoremap <silent><nowait><expr> <C-k> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+"endif
 
 " Use CTRL-S for selections ranges.
 " Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
+"nmap <silent> <C-s> <Plug>(coc-range-select)
+"xmap <silent> <C-s> <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocActionAsync('format')
@@ -429,6 +445,9 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+autocmd BufWritePre *.cpp,*.py,*.rs,*.h,*.hpp :OR
+"autocmd BufWritePre *.cpp,*.rs,*.h,*.hpp :OR
+
 
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
@@ -437,21 +456,21 @@ set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent><nowait> cd  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-nnoremap <silent><nowait> ce  :<C-u>CocList extensions<cr>
-" Show commands.
-nnoremap <silent><nowait> cc  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> co  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> cs  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> cj  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> ck  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-nnoremap <silent><nowait> cp  :<C-u>CocListResume<CR>
+"nnoremap <silent><nowait> cd  :<C-u>CocList diagnostics<cr>
+"" Manage extensions.
+"nnoremap <silent><nowait> ce  :<C-u>CocList extensions<cr>
+"" Show commands.
+"nnoremap <silent><nowait> cc  :<C-u>CocList commands<cr>
+"" Find symbol of current document.
+"nnoremap <silent><nowait> co  :<C-u>CocList outline<cr>
+"" Search workspace symbols.
+"nnoremap <silent><nowait> cs  :<C-u>CocList -I symbols<cr>
+"" Do default action for next item.
+"nnoremap <silent><nowait> cj  :<C-u>CocNext<CR>
+"" Do default action for previous item.
+"nnoremap <silent><nowait> ck  :<C-u>CocPrev<CR>
+"" Resume latest coc list.
+"nnoremap <silent><nowait> cp  :<C-u>CocListResume<CR>
 
 
 Plug 'autozimu/LanguageClient-neovim', {
@@ -468,11 +487,9 @@ let g:LanguageClient_serverCommands = {
 \ 'rust': ['rust-analyzer'],
 \ }
 Plug 'neovim/nvim-lspconfig'
-
-
+" Rustfmt on save
 Plug 'rust-lang/rust.vim'
 let g:rustfmt_autosave = 1
-
 """"""
 
 " Colorscheme
@@ -495,10 +512,10 @@ colorscheme peaksea
 Plug 'tpope/vim-surround'
 
 " Parenthesis
-Plug 'chun-yang/auto-pairs'
+Plug 'jiangmiao/auto-pairs'
 
 " MRU Plugin - Most Recently Used files
-" <leader>f to open recently used files search. 
+" <leader>f to open recently used files search.
 "   Enter to open or "O" to open vertically split
 Plug 'yegappan/mru'
 let MRU_File = '~/.config/nvim/other/vim_mru_files'
@@ -524,22 +541,34 @@ Plug 'ctrlpvim/ctrlp.vim'
 let g:ctrlp_working_path_mode = 0
 " Quickly find and open a file in the current working directory
 let g:ctrlp_map = '<C-f>'
-map <leader>j :CtrlP<cr>
+map <leader>s :CtrlP<cr>
 let g:ctrlp_max_height = 20
 let g:ctrlp_custom_ignore = 'node_modules\|^\.DS_Store\|^\.git\|^\.coffee'
+"let g:ctrlp_open_new_file='t'
+"let g:ctrlp_tabpage_position='l'
 
 " snipMate (TODO, use for html tags)
 "Plug 'msanders/snipmate.vim'
 
 " Nerd tree - Show directories
+" For bookmarks:
+"   Inside of the nerdtree window:
+"     * :Bookmark <name>
+"     * :ClearBookmarks <name>
 Plug 'preservim/nerdtree'
 let g:NERDTreeWinPos = "right"
 let NERDTreeShowHidden=0
 let NERDTreeIgnore = ['\.pyc$', '__pycache__']
 let g:NERDTreeWinSize=35
+let NERDTreeShowBookmarks = 1   " Show the bookmarks table
+let NERDTreeShowHidden = 1      " Show hidden files
+let NERDTreeShowLineNumbers = 0 " Hide line numbers
+let NERDTreeMinimalMenu = 1     " Use the minimal menu (m)
 map <leader>nn :NERDTreeToggle<cr>
+map <leader>ng :NERDTreeVCS<cr>
 map <leader>nb :NERDTreeFromBookmark<Space>
 map <leader>nf :NERDTreeFind<cr>
+
 
 " Vim-Multi-Cursors
 "Plug 'mg979/vim-visual-multi', {'branch': 'master'}
@@ -589,13 +618,77 @@ Plug 'tpope/vim-fugitive'
 nnoremap <leader>v :.GBrowse!<CR>
 xnoremap <leader>v :'<'>GBrowse!<CR>
 
+" Universal Ctags - Helps neovim find ctags. Might need compiling: https://github.com/universal-ctags/ctags#how-to-build-and-install
+Plug 'universal-ctags/ctags'
+" Auto create/update Ctags
+Plug 'ludovicchabant/vim-gutentags'
+
+" Tagbar - Add side bar to view tag info
+Plug 'preservim/tagbar'
+map <leader>tt :TagbarToggle<CR>
+
+" Clang-format
+Plug 'rhysd/vim-clang-format'
+autocmd FileType c ClangFormatAutoEnable
+let g:clang_format#auto_format=1
+
+" Better C++ highlighting
+Plug 'jackguo380/vim-lsp-cxx-highlight'
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
+
+" C++ Linting
+"Plug 'vim-syntastic/syntastic'
+"let g:syntastic_cpp_checkers = ['cpplint']
+"let g:syntastic_c_checkers = ['cpplint']
+"let g:syntastic_cpp_cpplint_exec = 'cpplint'
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 0
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+
+" Escape insert mode using "jk"
+Plug 'jdhao/better-escape.vim'
+let g:better_escape_shortcut = 'jj'
+let g:better_escape_interval = 500
+
+" Better markdown
+Plug 'godlygeek/tabular'
+Plug 'preservim/vim-markdown'
+let g:vim_markdown_auto_insert_bullets = 0
+let g:vim_markdown_new_list_item_indent = 0
+
+" CamelCase and snake_case 'w'
+Plug 'chaoren/vim-wordmotion'
+
+" Better vim-diff
+Plug 'chrisbra/vim-diff-enhanced'
+
+" Move block all at once
+"Plug 'matze/vim-move'
+"let g:move_map_keys = 0
+"smap <C-j> <Plug>MoveBlockDown
+"smap <C-k> <Plug>MoveBlockUp
+
+" Tabs
+"Plug 'lewis6991/gitsigns.nvim' " OPTIONAL: for git status
+"Plug 'nvim-tree/nvim-web-devicons' " OPTIONAL: for file icons
+"Plug 'romgrk/barbar.nvim'
+
+" Search files
+Plug 'dyng/ctrlsf.vim'
+nmap <C-s> <Plug>CtrlSFVwordPath
+xmap <C-s> <Plug>CtrlSFVwordPath
+
+" Debugger - Needs neovim 0.8
+"Plug 'puremourning/vimspector'
+
 " Initialize plugin system
 call plug#end()
-
-""" Moving Around """
-" Split using ctrl+shift+v or ctrl+shift+s
-nnoremap ,v <C-w>v
-nnoremap ,s <C-w>s
 
 "### Functions ###
 function! VisualSelection(direction, extra_filter) range
