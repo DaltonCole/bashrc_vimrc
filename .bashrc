@@ -162,14 +162,8 @@ alias xclip="xclip -selection c"
 bind Space:magic-space
 
 # fzf fuzzy search with ctrl-r
-source /usr/share/doc/fzf/examples/completion.bash
+#source /usr/share/doc/fzf/examples/completion.bash
 source /usr/share/doc/fzf/examples/key-bindings.bash
-
-# Neovim
-alias n="nvim"
-alias vim="nvim"
-alias vi="nvim"
-alias oldvim="\vim"
 
 # Colored Diff
 alias diff="diff --color"
@@ -185,10 +179,47 @@ alias cluster='ssh drc14@67.43.246.19'
 # XAMPP Server for Databases
 alias xampp="sudo /opt/lampp/lampp start"
 
-# RuneScape
-alias runelite="java -jar /usr/local/bin/RuneLite.jar"
 # Restarts audio for when there is a "Audio Renderer Error - Please Restart Your Computer" error on YouTube
 alias audio-restart="pulseaudio -k && sudo alsa force-reload"
 alias fix-audio="audio-restart"
 # Two Monitors
 alias screen="/home/drc/bashrc_vimrc/config/i3/screen.sh"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Neovim
+NEOVIM_IMAGE="neovim"
+NEOVIM_VOL="/system"
+NEOVIM_COMPOSE_DIR="/home/drc/neovim/"
+# Docker alias
+neovim_start_container() {
+    make -C "${NEOVIM_COMPOSE_DIR}" up
+}
+neovim() {
+    CONTAINER_ID=$(docker ps -q --filter name=neovim-neovim)
+    if [ -z "${CONTAINER_ID}" ]; then
+        neovim_start_container
+        CONTAINER_ID=$(docker ps -q --filter name=neovim-neovim)
+    fi
+
+    VOL=/system
+    CD_DIR=/${VOL}/$(pwd)
+    PYTHON_PATH=$(dirname $(which python) 2> /dev/null)
+    CARGO_PATH=$(dirname $(which cargo) 2> /dev/null)
+    # Handle `nvim <file>` and `nvim` differently
+	if [ -n "$1" ]; then
+        VIM_DIR="/${VOL}/$(readlink -f "$1")"
+        docker exec -it ${CONTAINER_ID} /bin/bash -l -c \
+            "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim ${VIM_DIR}"
+    else
+        docker exec -it ${CONTAINER_ID} /bin/bash -l -c \
+            "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim"
+    fi
+}
+alias buildnvim="docker build -t neovim --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg LOCAL_UNAME=$(whoami) ."
+alias n="neovim"
+alias vim="neovim"
+alias nvim="neovim"
+alias vi="neovim"
