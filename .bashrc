@@ -1,6 +1,4 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+# ~/.bashrc
 
 # If not running interactively, don't do anything
 case $- in
@@ -8,53 +6,27 @@ case $- in
       *) return;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
+# --- Shell Options ---
 HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
-shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
-
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
+shopt -s histappend
 shopt -s checkwinsize
+shopt -s cdspell
 
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
-
-# make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# set variable identifying the chroot you work in (used in the prompt below)
+# Magic space: !<something><space> expands last matching command
+bind Space:magic-space
+
+# --- Prompt ---
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm|xterm-color|*-256color) color_prompt=yes;;
 esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
-fi
 
 if [ "$color_prompt" = yes ]; then
     if [[ ${EUID} == 0 ]] ; then
@@ -65,53 +37,36 @@ if [ "$color_prompt" = yes ]; then
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h \w \$ '
 fi
-unset color_prompt force_color_prompt
+unset color_prompt
 
-# If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
     PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h \w\a\]$PS1"
     ;;
-*)
-    ;;
 esac
 
-# enable color support of ls and also add handy aliases
+# --- Aliases ---
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
-
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
 
-# colored GCC warnings and errors
-export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
+alias diff='diff --color'
+alias open='xdg-open'
+alias xclip='xclip -selection c'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
+# --- Completion ---
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
@@ -121,17 +76,12 @@ if ! shopt -oq posix; then
 fi
 
 if [ -x /usr/bin/mint-fortune ]; then
-     /usr/bin/mint-fortune
+    /usr/bin/mint-fortune
 fi
 
-# Allow directory mispellings when cd-ing
-shopt -s cdspell
+# --- Tools ---
 
-# Magic space - Use !<something><space> to auto-expand last command of something. Works with !!
-bind Space:magic-space
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
+# Conda
 __conda_setup="$('/home/drc/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
@@ -143,60 +93,25 @@ else
     fi
 fi
 unset __conda_setup
-# <<< conda initialize <<<
 
-# Audio
-alias sound="alsamixer"
-alias audio="alsamixer"
-
-# Map "open" to "xdg-open"
-alias open="xdg-open"
-
-# Copy to clipboard using xclip
-alias xclip="xclip -selection c"
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Rust
 . "$HOME/.cargo/env"
 
-# Magic space - Use !<something><space> to auto-expand last command of something.
-bind Space:magic-space
-
-# fzf fuzzy search with ctrl-r
-#source /usr/share/doc/fzf/examples/completion.bash
+# fzf
 source /usr/share/doc/fzf/examples/key-bindings.bash
 
-# Colored Diff
-alias diff="diff --color"
-
-##### Me Specific #####
-# Website
-export DEBUG=True
-
-# Pi Cluster
-alias cluster='ssh drc14@67.43.246.19'
-
-##### LOCAL #####
-# XAMPP Server for Databases
-alias xampp="sudo /opt/lampp/lampp start"
-
-# Restarts audio for when there is a "Audio Renderer Error - Please Restart Your Computer" error on YouTube
-alias audio-restart="pulseaudio -k && sudo alsa force-reload"
-alias fix-audio="audio-restart"
-# Two Monitors
-alias screen="/home/drc/bashrc_vimrc/config/i3/screen.sh"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# Neovim
-NEOVIM_IMAGE="neovim"
-NEOVIM_VOL="/system"
+# --- Neovim (Docker) ---
 NEOVIM_COMPOSE_DIR="/home/drc/neovim/"
-# Docker alias
+
 neovim_start_container() {
     make -C "${NEOVIM_COMPOSE_DIR}" up
 }
+
 neovim() {
     CONTAINER_ID=$(docker ps -q --filter name=neovim-neovim)
     if [ -z "${CONTAINER_ID}" ]; then
@@ -208,8 +123,8 @@ neovim() {
     CD_DIR=/${VOL}/$(pwd)
     PYTHON_PATH=$(dirname $(which python) 2> /dev/null)
     CARGO_PATH=$(dirname $(which cargo) 2> /dev/null)
-    # Handle `nvim <file>` and `nvim` differently
-	if [ -n "$1" ]; then
+
+    if [ -n "$1" ]; then
         VIM_DIR="/${VOL}/$(readlink -f "$1")"
         docker exec -it ${CONTAINER_ID} /bin/bash -l -c \
             "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim ${VIM_DIR}"
@@ -218,8 +133,18 @@ neovim() {
             "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim"
     fi
 }
+
 alias buildnvim="docker build -t neovim --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg LOCAL_UNAME=$(whoami) ."
 alias n="neovim"
 alias vim="neovim"
 alias nvim="neovim"
 alias vi="neovim"
+
+# --- Personal ---
+alias screen="/home/drc/bashrc_vimrc/config/i3/screen.sh"
+alias xampp="sudo /opt/lampp/lampp start"
+alias audio="alsamixer"
+alias audio-restart="pulseaudio -k && sudo alsa force-reload"
+alias fix-audio="audio-restart"
+
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
