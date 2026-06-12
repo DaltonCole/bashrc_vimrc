@@ -82,17 +82,15 @@ fi
 # --- Tools ---
 
 # Conda
-__conda_setup="$('/home/drc/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/drc/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/drc/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/drc/anaconda3/bin:$PATH"
+if [ -f "$HOME/anaconda3/bin/conda" ]; then
+    __conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    elif [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "$HOME/anaconda3/etc/profile.d/conda.sh"
     fi
+    unset __conda_setup
 fi
-unset __conda_setup
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
@@ -100,13 +98,13 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Rust
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # fzf
-source /usr/share/doc/fzf/examples/key-bindings.bash
+[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
 
 # --- Neovim (Docker) ---
-NEOVIM_COMPOSE_DIR="/home/drc/neovim/"
+NEOVIM_COMPOSE_DIR="$HOME/neovim/"
 
 neovim_start_container() {
     make -C "${NEOVIM_COMPOSE_DIR}" up
@@ -141,7 +139,7 @@ alias nvim="neovim"
 alias vi="neovim"
 
 # --- Personal ---
-alias screen="/home/drc/bashrc_vimrc/config/i3/screen.sh"
+alias screen="$HOME/bashrc_vimrc/config/i3/screen.sh"
 alias xampp="sudo /opt/lampp/lampp start"
 alias audio="alsamixer"
 alias audio-restart="pulseaudio -k && sudo alsa force-reload"
