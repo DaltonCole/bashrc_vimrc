@@ -1,4 +1,8 @@
-# ~/.bashrc
+# ~/.bashrc: executed by bash(1) for interactive non-login shells.
+#
+# Shared by desktops and headless servers, so every tool-specific block checks
+# that its tool is installed first. Machine-specific aliases and settings go in
+# ~/.bash_aliases, which is sourced last (see "Local overrides" at the bottom).
 
 # If not running interactively, don't do anything
 case $- in
@@ -6,20 +10,26 @@ case $- in
       *) return;;
 esac
 
-# --- Shell Options ---
-HISTCONTROL=ignoreboth
+# --- History ---
+HISTCONTROL=ignoreboth      # skip duplicate lines and lines starting with a space
 HISTSIZE=1000
 HISTFILESIZE=2000
-shopt -s histappend
-shopt -s checkwinsize
-shopt -s cdspell
+shopt -s histappend         # append to the history file, don't overwrite it
 
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# --- Shell options ---
+shopt -s checkwinsize       # update LINES/COLUMNS after each command
+shopt -s cdspell            # correct minor typos in `cd` arguments
 
-# Magic space: !<something><space> expands last matching command
+# Magic space: `!<something><space>` expands the history reference in place
 bind Space:magic-space
 
+# Let less display non-text input files (archives, PDFs, ...)
+if [ -x /usr/bin/lesspipe ]; then
+    eval "$(SHELL=/bin/sh lesspipe)"
+fi
+
 # --- Prompt ---
+# Name of the chroot you're working in, if any (shown in the prompt)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
@@ -29,9 +39,11 @@ case "$TERM" in
 esac
 
 if [ "$color_prompt" = yes ]; then
-    if [[ ${EUID} == 0 ]] ; then
+    if [ "$EUID" -eq 0 ]; then
+        # root: red host, blue current directory name
         PS1='${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '
     else
+        # user: green user@host, blue full working directory
         PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\] \[\033[01;34m\]\w \$\[\033[00m\] '
     fi
 else
@@ -39,71 +51,89 @@ else
 fi
 unset color_prompt
 
+# Set the terminal window title to "user@host dir"
 case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h \w\a\]$PS1"
-    ;;
+    xterm*|rxvt*)
+        PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h \w\a\]$PS1"
+        ;;
 esac
 
-# --- Aliases ---
+# --- Colors ---
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    if [ -r "$HOME/.dircolors" ]; then
+        eval "$(dircolors -b "$HOME/.dircolors")"
+    else
+        eval "$(dircolors -b)"
+    fi
     alias ls='ls --color=auto'
     alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
+    # The fgrep/egrep commands are obsolescent and warn on every use since
+    # GNU grep 3.8; `grep -F`/`grep -E` are the same thing without the warning.
+    alias fgrep='grep -F --color=auto'
+    alias egrep='grep -E --color=auto'
 fi
+alias diff='diff --color'
 
+# Colored GCC warnings and errors
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# --- Aliases ---
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias diff='diff --color'
-alias open='xdg-open'
-alias xclip='xclip -selection c'
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
+# Desktop helpers (just "command not found" where the tool isn't installed)
+alias open='xdg-open'
+alias xclip='xclip -selection c'    # use the clipboard, not the primary selection
+# Desktop notification when a long command finishes, e.g. `sleep 10; alert`
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # --- Completion ---
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
-
-if [ -x /usr/bin/mint-fortune ]; then
-    /usr/bin/mint-fortune
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+    fi
 fi
 
 # --- Tools ---
 
-# Conda
-if [ -f "$HOME/anaconda3/bin/conda" ]; then
-    __conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
-    if [ $? -eq 0 ]; then
-        eval "$__conda_setup"
-    elif [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "$HOME/anaconda3/etc/profile.d/conda.sh"
+# Conda: use whichever of ~/miniconda3 or ~/anaconda3 is installed (miniconda3
+# first). Same hook-then-conda.sh logic as the block `conda init` writes.
+for __conda_root in "$HOME/miniconda3" "$HOME/anaconda3"; do
+    if [ -f "$__conda_root/bin/conda" ]; then
+        if __conda_setup="$("$__conda_root/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"; then
+            eval "$__conda_setup"
+        elif [ -f "$__conda_root/etc/profile.d/conda.sh" ]; then
+            . "$__conda_root/etc/profile.d/conda.sh"
+        fi
+        break
     fi
-    unset __conda_setup
+done
+unset __conda_root __conda_setup
+
+# nvm (Node version manager)
+export NVM_DIR="$HOME/.nvm"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    . "$NVM_DIR/nvm.sh"
+fi
+if [ -s "$NVM_DIR/bash_completion" ]; then
+    . "$NVM_DIR/bash_completion"
 fi
 
-# NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# Rust (rustup's cargo environment)
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
 
-# Rust
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-
-# fzf
-[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
+# fzf key bindings (Ctrl-R history, Ctrl-T files, Alt-C cd), Debian/Ubuntu path
+if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+    . /usr/share/doc/fzf/examples/key-bindings.bash
+fi
 
 # --- Neovim (Docker or Podman) ---
+# Neovim runs in a container built from the DaltonCole/neovim repo, cloned here.
 NEOVIM_COMPOSE_DIR="$HOME/neovim/"
 
 # Prints the engine that runs the neovim container: docker when a real Docker
@@ -130,10 +160,14 @@ neovim_container_id() {
         --filter label=com.docker.compose.service=neovim
 }
 
+# Starts the container through the neovim repo's Makefile, with the same engine.
 neovim_start_container() {
     make -C "${NEOVIM_COMPOSE_DIR}" up NEOVIM_ENGINE="${1:-$(neovim_engine)}"
 }
 
+# Opens nvim in the container (starting it first if needed), in the current
+# directory and on the optional file argument. The container sees the host
+# filesystem under /system.
 neovim() {
     local engine
     engine=$(neovim_engine)
@@ -158,21 +192,22 @@ neovim() {
     fi
 }
 
-# Was an alias; a function so the engine is picked when it runs, not each
-# time a shell starts. Extra arguments go to `build`.
+# Builds the neovim image from the current directory (run it in the neovim
+# repo). A function rather than an alias so the engine is picked when it runs,
+# not each time a shell starts. Extra arguments go to `build`.
 buildnvim() {
     "$(neovim_engine)" build -t neovim --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg LOCAL_UNAME=$(whoami) "$@" .
 }
+
+# Every vi-style command opens the containerized neovim
 alias n="neovim"
 alias vim="neovim"
 alias nvim="neovim"
 alias vi="neovim"
 
-# --- Personal ---
-alias screen="$HOME/bashrc_vimrc/config/i3/screen.sh"
-alias xampp="sudo /opt/lampp/lampp start"
-alias audio="alsamixer"
-alias audio-restart="pulseaudio -k && sudo alsa force-reload"
-alias fix-audio="audio-restart"
-
-export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+# --- Local overrides ---
+# Machine-specific aliases and settings that don't belong in this shared file.
+# Sourced last so they can override anything above.
+if [ -f "$HOME/.bash_aliases" ]; then
+    . "$HOME/.bash_aliases"
+fi

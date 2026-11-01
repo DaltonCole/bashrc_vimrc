@@ -28,37 +28,13 @@ Per-tool install scripts live in `scripts/`:
 
 | File | Target | Purpose |
 |------|--------|---------|
-| `.bashrc` | `~/.bashrc` | Bash config, aliases, conda/nvm/cargo init |
+| `.bashrc` | `~/.bashrc` | Bash config: prompt, aliases, completion, conda/nvm/cargo/fzf init, containerized-neovim launcher |
 | `.tmux.conf` | `~/.tmux.conf` | Tmux config with TPM plugins |
-| `.vimrc` | `~/.vimrc` | Legacy vim config (amix/vimrc based) |
-| `.config/nvim/init.vim` | `~/.config/nvim/init.vim` | Primary neovim config |
 | `config/i3/` | `~/.config/i3/` | i3 WM config and i3blocks status bar |
 
-## Neovim Architecture
+## Neovim
 
-Plugin manager: **vim-plug** (`call plug#begin` / `call plug#end`). Plugins auto-install on first launch.
-
-**Leader key**: `,`
-
-Key plugin bindings:
-- `,f` — MRU (most recently used files)
-- `,o` — BufExplorer
-- `,nn` / `,nf` — NERDTree toggle / find
-- `Ctrl+f` / `,j` — CtrlP fuzzy file finder
-- `gd` / `gr` / `K` — coc.nvim go-to-definition / references / hover docs
-- `crn` — coc.nvim symbol rename
-- `[g` / `]g` — navigate ALE/coc diagnostics
-- `,a` — jump to next ALE error
-- `,g` — toggle GitGutter
-- `,v` / `,s` — vertical / horizontal split
-
-**LSP/completion**: coc.nvim handles autocomplete and LSP. ALE handles linting with:
-- Rust: `rust-analyzer`
-- Python: `flake8`
-- JavaScript: `eslint`
-- Go: `go`, `golint`, `errcheck`
-
-**Rust**: `rustfmt` runs on save (`let g:rustfmt_autosave = 1`).
+The neovim config itself is not in this repo. It lives in the separate `DaltonCole/neovim` repo (cloned to `~/neovim`, the `.bashrc`'s `NEOVIM_COMPOSE_DIR`), which also builds the container image. This repo only has the `.bashrc` launcher.
 
 **Neovim runs in a container, under Docker or Podman** (see the `.bashrc` `neovim()` function). The aliases `vim`, `nvim`, `vi`, `n` all invoke the containerized neovim. `neovim_engine()` picks Docker when a real Docker CLI is installed, otherwise Podman (podman-docker's `docker` shim counts as Podman); export `NEOVIM_ENGINE=docker|podman` to override. The container is found by its compose labels (project `neovim`), and is started via the neovim repo's Makefile with the same engine. The container mounts `/system` and maps the host filesystem under that prefix.
 
@@ -73,12 +49,19 @@ Key plugin bindings:
 - `prefix + I` (capital I) — install TPM plugins
 - Status bar uses Mountain Time (America/Denver)
 
-## Bash Aliases of Note
+## Bash Notes
 
-- `n` / `vim` / `nvim` / `vi` — all invoke containerized neovim (Docker or Podman)
-- `cluster` — SSH to pi cluster
-- `screen` — run `config/i3/screen.sh` for dual-monitor setup
-- `xampp` — start XAMPP/LAMPP server
-- `audio-restart` / `fix-audio` — fix PulseAudio renderer errors
+`.bashrc` is shared by desktops and headless Ubuntu servers (the `DaltonCole/new-machine-setup` Ansible playbook deploys it), so:
+- the non-interactive early `return` stays at the top
+- every tool-specific block checks that the tool is installed first
+- no hardcoded home paths; use `$HOME`
+- nothing machine-specific: that goes in `~/.bash_aliases` (not in this repo), which is sourced last so it can override anything
+
+Section order: history, shell options, prompt, colors, aliases, completion, tools (conda from `~/miniconda3` or else `~/anaconda3`, then nvm, cargo, fzf), neovim, local overrides (`~/.bash_aliases`).
+
+Aliases of note:
+- `n` / `vim` / `nvim` / `vi` — all invoke containerized neovim (Docker or Podman); the `buildnvim` function builds its image from the current directory
+- `open` — `xdg-open`
 - `xclip` — copy to clipboard via xclip (uses `-selection c`)
-- `diff` — colored diff
+- `alert` — desktop notification when a command finishes (`sleep 10; alert`)
+- `diff` — colored diff; `fgrep` / `egrep` — `grep -F` / `grep -E` with color
