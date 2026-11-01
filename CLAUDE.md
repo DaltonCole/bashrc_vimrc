@@ -60,7 +60,7 @@ Key plugin bindings:
 
 **Rust**: `rustfmt` runs on save (`let g:rustfmt_autosave = 1`).
 
-**Neovim runs in Docker** (see `.bashrc` `neovim()` function). The aliases `vim`, `nvim`, `vi`, `n` all invoke the Docker-based neovim. The container mounts `/system` and maps the host filesystem under that prefix.
+**Neovim runs in a container, under Docker or Podman** (see the `.bashrc` `neovim()` function). The aliases `vim`, `nvim`, `vi`, `n` all invoke the containerized neovim. `neovim_engine()` picks Docker when a real Docker CLI is installed, otherwise Podman (podman-docker's `docker` shim counts as Podman); export `NEOVIM_ENGINE=docker|podman` to override. The container is found by its compose labels (project `neovim`), and is started via the neovim repo's Makefile with the same engine. The container mounts `/system` and maps the host filesystem under that prefix.
 
 ## Tmux Key Notes
 
@@ -75,7 +75,7 @@ Key plugin bindings:
 
 ## Bash Aliases of Note
 
-- `n` / `vim` / `nvim` / `vi` — all invoke dockerized neovim
+- `n` / `vim` / `nvim` / `vi` — all invoke containerized neovim (Docker or Podman)
 - `cluster` — SSH to pi cluster
 - `screen` — run `config/i3/screen.sh` for dual-monitor setup
 - `xampp` — start XAMPP/LAMPP server

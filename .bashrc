@@ -103,18 +103,44 @@ export NVM_DIR="$HOME/.nvm"
 # fzf
 [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
 
-# --- Neovim (Docker) ---
+# --- Neovim (Docker or Podman) ---
 NEOVIM_COMPOSE_DIR="$HOME/neovim/"
 
+# Prints the engine that runs the neovim container: docker when a real Docker
+# CLI is installed, otherwise podman. podman-docker's `docker` shim counts as
+# Podman. Export NEOVIM_ENGINE=docker|podman to override. Same rule as the
+# neovim repo's Makefile.
+neovim_engine() {
+    if [ -n "${NEOVIM_ENGINE}" ]; then
+        echo "${NEOVIM_ENGINE}"
+    elif command -v docker > /dev/null 2>&1 && ! docker --version 2> /dev/null | grep -qi podman; then
+        echo docker
+    elif command -v podman > /dev/null 2>&1; then
+        echo podman
+    else
+        echo docker
+    fi
+}
+
+# Finds the running container by its compose labels. The neovim repo pins the
+# project name to "neovim", and both Docker and podman-compose set these.
+neovim_container_id() {
+    "${1:-$(neovim_engine)}" ps -q \
+        --filter label=com.docker.compose.project=neovim \
+        --filter label=com.docker.compose.service=neovim
+}
+
 neovim_start_container() {
-    make -C "${NEOVIM_COMPOSE_DIR}" up
+    make -C "${NEOVIM_COMPOSE_DIR}" up NEOVIM_ENGINE="${1:-$(neovim_engine)}"
 }
 
 neovim() {
-    CONTAINER_ID=$(docker ps -q --filter name=neovim-neovim)
+    local engine
+    engine=$(neovim_engine)
+    CONTAINER_ID=$(neovim_container_id "${engine}")
     if [ -z "${CONTAINER_ID}" ]; then
-        neovim_start_container
-        CONTAINER_ID=$(docker ps -q --filter name=neovim-neovim)
+        neovim_start_container "${engine}"
+        CONTAINER_ID=$(neovim_container_id "${engine}")
     fi
 
     VOL=/system
@@ -124,15 +150,19 @@ neovim() {
 
     if [ -n "$1" ]; then
         VIM_DIR="/${VOL}/$(readlink -f "$1")"
-        docker exec -it ${CONTAINER_ID} /bin/bash -l -c \
+        "${engine}" exec -it ${CONTAINER_ID} /bin/bash -l -c \
             "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim ${VIM_DIR}"
     else
-        docker exec -it ${CONTAINER_ID} /bin/bash -l -c \
+        "${engine}" exec -it ${CONTAINER_ID} /bin/bash -l -c \
             "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim"
     fi
 }
 
-alias buildnvim="docker build -t neovim --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg LOCAL_UNAME=$(whoami) ."
+# Was an alias; a function so the engine is picked when it runs, not each
+# time a shell starts. Extra arguments go to `build`.
+buildnvim() {
+    "$(neovim_engine)" build -t neovim --build-arg UID=$(id -u) --build-arg GID=$(id -g) --build-arg LOCAL_UNAME=$(whoami) "$@" .
+}
 alias n="neovim"
 alias vim="neovim"
 alias nvim="neovim"
