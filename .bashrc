@@ -166,30 +166,45 @@ neovim_start_container() {
 }
 
 # Opens nvim in the container (starting it first if needed), in the current
-# directory and on the optional file argument. The container sees the host
+# directory, with any files and options you pass. The container sees the host
 # filesystem under /system.
 neovim() {
-    local engine
+    local engine id tool dir arg is_value="" only_files=""
+    local vol=/system
+    local path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    local -a args=()
+
     engine=$(neovim_engine)
-    CONTAINER_ID=$(neovim_container_id "${engine}")
-    if [ -z "${CONTAINER_ID}" ]; then
+    id=$(neovim_container_id "${engine}")
+    if [ -z "${id}" ]; then
         neovim_start_container "${engine}"
-        CONTAINER_ID=$(neovim_container_id "${engine}")
+        id=$(neovim_container_id "${engine}")
     fi
 
-    VOL=/system
-    CD_DIR=/${VOL}/$(pwd)
-    PYTHON_PATH=$(dirname $(which python) 2> /dev/null)
-    CARGO_PATH=$(dirname $(which cargo) 2> /dev/null)
+    # Add the host's active Python and cargo to the container's own PATH. Only
+    # folders under $HOME exist at the same path in there.
+    for tool in cargo python; do
+        dir=$(dirname -- "$(command -v -- "${tool}")")
+        case "${dir}" in "${HOME}"/*) path="${dir}:${path}" ;; esac
+    done
 
-    if [ -n "$1" ]; then
-        VIM_DIR="/${VOL}/$(readlink -f "$1")"
-        "${engine}" exec -it ${CONTAINER_ID} /bin/bash -l -c \
-            "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim ${VIM_DIR}"
-    else
-        "${engine}" exec -it ${CONTAINER_ID} /bin/bash -l -c \
-            "export PATH=\"${PYTHON_PATH}:${CARGO_PATH}:$PATH\" && cd ${CD_DIR} && nvim"
-    fi
+    # File arguments become /system paths. Options and their values don't.
+    for arg in "$@"; do
+        if [ -n "${is_value}" ]; then
+            is_value=""
+            args+=("${arg}")
+        elif [ -z "${only_files}" ] && [[ "${arg}" == [-+]* ]]; then
+            case "${arg}" in
+                --) only_files=1 ;;
+                -c|--cmd|-t|-u|-i|-S|-s|-q|--listen|--server|--startuptime) is_value=1 ;;
+            esac
+            args+=("${arg}")
+        else
+            args+=("${vol}$(realpath -m -- "${arg}")")
+        fi
+    done
+
+    "${engine}" exec -it -w "${vol}$(pwd -P)" -e PATH="${path}" "${id}" nvim "${args[@]}"
 }
 
 # Builds the neovim image from the current directory (run it in the neovim
